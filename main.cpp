@@ -20,12 +20,12 @@ void split_str (const string &s, const string &delimiter, vector<string> &data) 
 }
 
 class Matrix {
-      private:
+    private:
         int n, m;
         double** matrix;
         string matrix_delimeter, size_delimeter;
 
-      public:
+    public:
         Matrix(int n) {
             this->n = n;
             this->m = n;
