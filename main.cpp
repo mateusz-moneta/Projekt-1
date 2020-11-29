@@ -97,15 +97,15 @@ class Matrix {
         Matrix add(const Matrix& matrix_input) {
             Matrix temp(rows(), cols());
 
-              if (this->rows() != matrix_input.rows() || this->cols() != matrix_input.cols()) {
+            if (this->rows() != matrix_input.rows() || this->cols() != matrix_input.cols()) {
                 throw invalid_argument("Matrix addition is workable for matrices with the same dimensions.");
-              }
+            }
 
-              for (int i = 0; i < this->rows(); i++) {
+            for (int i = 0; i < this->rows(); i++) {
                 for (int j = 0; j < this->cols(); j++) {
                     temp.set(i, j, this->get(i, j) + matrix_input.get(i, j));
                 }
-              }
+            }
 
             return temp;
         }
