@@ -2,8 +2,22 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
+
+void split_str (const string &s, const string &delimiter, vector<string> &data) {
+    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+    string token;
+
+    while ((pos_end = s.find (delimiter, pos_start)) != string::npos) {
+        token = s.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        data.push_back (token);
+    }
+
+    data.push_back (s.substr (pos_start));
+}
 
 class Matrix {
   	private:
@@ -35,6 +49,7 @@ class Matrix {
 	        ifstream s(path.c_str());
 	        string line;
 	        size_t pos;
+            vector <string> matrix_data;
 
 	        // get matrix size from the first line
 	        getline(s, line);
@@ -44,12 +59,18 @@ class Matrix {
 	        this->matrix = new double*[n];
 
 	        for (int i = 0; i < this->rows(); i++) {
+	            matrix_data.clear();
 	            this->matrix[i] = new double[this->cols()];
 	            getline(s, line);
+                split_str(line, matrix_delimeter, matrix_data);
 
                 for (int j = 0; j < this->cols(); j++) {
-                    this->set(i, j, stof(line.substr(j, pos)));
+                    if (!matrix_data[j].empty()) {
+                        this->set(i, j, stod(matrix_data[j]));
+                    }
                 }
+
+                cout << endl;
 	        }
 	    }
 
@@ -115,9 +136,31 @@ class Matrix {
         Matrix multiply(const Matrix& matrix_input) {
             Matrix temp(rows(), cols());
 
-            for (int i = 0; i < cols(); i++)
-                for (int j = 0; j < rows(); j++)
-                    temp.set(i, j, get(i, j) * matrix_input.get(i, j));
+            if (this->rows() != matrix_input.cols() || this->cols() != matrix_input.rows()) {
+                throw invalid_argument("Matrix multiplication is workable for matrices with the same dimensions.");
+            }
+
+            double calculations[this->cols()][matrix_input.rows()];
+
+            for (int i = 0; i < this->cols(); i++) {
+                for (int j = 0; j < matrix_input.rows(); j++) {
+                    calculations[i][j] = 0;
+                }
+            }
+
+            for (int i = 0; i < this->cols(); i++) {
+                for (int j = 0; j < matrix_input.rows(); j++){
+                    for (int k = 0; k < this->rows(); k++) {
+                        calculations[i][j] += this->matrix[i][k] * matrix_input.get(k, j);
+                    }
+                }
+            }
+
+            for (int i = 0; i < this->cols(); i++) {
+                for (int j = 0; j < matrix_input.rows(); j++) {
+                    temp.set(i, j, calculations[i][j]);
+                }
+            }
 
             return temp;
         }
@@ -210,7 +253,7 @@ int main() {
    	cout << "Data saved to file: matrix.txt" << endl;
   	matrix.store("matrix.txt", "");
 
-  	cout << "Matrix 3 (created based on):" << endl;
+  	cout << "Matrix 3 (created based on file: matrix.txt):" << endl;
   	Matrix matrix3("matrix.txt");
   	matrix3.print();
 
